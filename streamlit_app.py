@@ -50,7 +50,7 @@ def _store_snapchat_username(username: str):
 def check_password():
     def password_entered():
         if hmac.compare_digest(
-            st.session_state["password"], "78PXjylASfjELTRvOhXCFt8YY5kf7rNn"
+            st.session_state["password"], st.secrets["PASSWORD"]
         ):
             st.session_state["password_correct"] = True
             del st.session_state["password"]
@@ -76,11 +76,6 @@ if __name__ == "__main__":
     if not check_password():
         st.stop()
 
-    with st.sidebar:
-        openai_api_key = st.text_input(
-            "OpenAI API key", type="password", key="chatbot_api_key"
-        )
-
     if "messages" not in st.session_state:
         st.session_state["messages"] = [
             {"role": "system", "content": SYSTEM_PROMPT},
@@ -92,13 +87,13 @@ if __name__ == "__main__":
         st.chat_message(info["role"]).write(info["content"])
 
     if prompt := st.chat_input():
-        if not openai_api_key:
+        if "OPENAI_API_KEY" not in st.secrets:
             st.error("OpenAI API key is required")
 
         st.session_state["messages"].append({"role": "user", "content": prompt})
         st.chat_message("user").write(prompt)
 
-        client = openai.OpenAI(api_key=openai_api_key)
+        client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
         response = (
             client.chat.completions.create(
