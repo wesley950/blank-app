@@ -98,12 +98,13 @@ if __name__ == "__main__":
         st.session_state["messages"].append({"role": "user", "content": prompt})
         st.chat_message("user").write(prompt)
 
+        client = openai.OpenAI(api_key=openai_api_key)
+
         response = (
-            openai.chat.completions.create(
+            client.chat.completions.create(
                 model="gpt-4o",
                 messages=st.session_state["messages"],
                 tools=tools,
-                openai_api_key=openai_api_key,
             )
             .choices[0]
             .message
@@ -127,10 +128,9 @@ if __name__ == "__main__":
                     )
 
                     new_response = (
-                        openai.chat.completions.create(
+                        client.chat.completions.create(
                             model="gpt-4o",
                             messages=st.session_state["messages"],
-                            openai_api_key=openai_api_key,
                         )
                         .choices[0]
                         .message
